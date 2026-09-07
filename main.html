@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Tiers</title>
+    <style>
+        :root {
+            --bg-dark: #0a0c10;
+            --card-bg: rgba(22, 27, 34, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            
+            /* Tier Colors & Glows */
+            --ht1: #FFD700;
+            --ht1-glow: rgba(255, 215, 0, 0.35);
+            --lt1: #C59B27;
+            --lt1-glow: rgba(197, 155, 39, 0.25);
+            
+            --ht2: #E0E0E0;
+            --ht2-glow: rgba(224, 224, 224, 0.3);
+            --lt2: #A6A6A6;
+            --lt2-glow: rgba(166, 166, 166, 0.2);
+            
+            --ht3: #CD7F32;
+            --ht3-glow: rgba(205, 127, 50, 0.3);
+            --lt3: #A05A2C;
+            --lt3-glow: rgba(160, 90, 44, 0.2);
+            
+            --ht4: #A78BFA;
+            --ht4-glow: rgba(167, 139, 250, 0.3);
+            --lt4: #8B5CF6;
+            --lt4-glow: rgba(139, 92, 246, 0.2);
+
+            --ht5: #B8A9DA;
+            --ht5-glow: rgba(184, 169, 218, 0.35);
+            --lt5: #7C68A6;
+            --lt5-glow: rgba(124, 104, 166, 0.25);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(88, 101, 242, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 215, 0, 0.08) 0px, transparent 50%);
+            color: #f0f6fc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 30px;
+        }
+
+        /* Gamemode Nav Buttons */
+        #modesNav {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #8b949e;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .mode-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+        }
+
+        /* Search Bar */
+        #searchInput {
+            display: block;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto 35px auto;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #searchInput:focus {
+            border-color: #5865F2;
+            box-shadow: 0 0 12px rgba(88, 101, 242, 0.3);
+        }
+
+        /* Tier Section Box - Centered */
+        .tier-row {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 0 auto 20px auto;
+            backdrop-filter: blur(12px);
+            box-sizing: border-box;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 100%;
+            max-width: 750px;
+        }
+
+        /* Header Title Centered */
+        .tier-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .tier-title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .tier-count {
+            position: absolute;
+            right: 0;
+            font-size: 12px;
+            font-weight: 700;
+            color: #8b949e;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Title Glows */
+        .tier-title-HT1 { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+        .tier-title-LT1 { color: #C59B27 !important; text-shadow: 0 0 8px rgba(197, 155, 39, 0.3); }
+
+        .tier-title-HT2 { color: #E0E0E0 !important; text-shadow: 0 0 10px rgba(224, 224, 224, 0.4); }
+        .tier-title-LT2 { color: #A6A6A6 !important; text-shadow: 0 0 8px rgba(166, 166, 166, 0.3); }
+
+        .tier-title-HT3 { color: #CD7F32 !important; text-shadow: 0 0 10px rgba(205, 127, 50, 0.4); }
+        .tier-title-LT3 { color: #A05A2C !important; text-shadow: 0 0 8px rgba(160, 90, 44, 0.3); }
+
+        .tier-title-HT4 { color: #A78BFA !important; text-shadow: 0 0 10px rgba(167, 139, 250, 0.35); }
+        .tier-title-LT4 { color: #8B5CF6 !important; text-shadow: 0 0 8px rgba(139, 92, 246, 0.25); }
+
+        .tier-title-HT5 { color: #B8A9DA !important; text-shadow: 0 0 10px rgba(184, 169, 218, 0.4); }
+        .tier-title-LT5 { color: #7C68A6 !important; text-shadow: 0 0 8px rgba(124, 104, 166, 0.3); }
+
+        /* Vertical Cards Container */
+        .player-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .player-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        .player-card-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .player-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Gold Tint for Gamemode HT1/LT1 */
+        .tier-row:has(.tier-title-HT1) .player-card,
+        .tier-row:has(.tier-title-LT1) .player-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 215, 0, 0.03));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: inset 0 0 12px rgba(255, 215, 0, 0.08);
+        }
+
+        .tier-row:has(.tier-title-HT1) .player-card:hover,
+        .tier-row:has(.tier-title-LT1) .player-card:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.22), rgba(255, 215, 0, 0.08));
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.25);
+        }
+
+        /* Rank Specific Card Styling & Shadow Matching */
+        .overall-rank {
+            font-size: 18px;
+            font-weight: 900;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        /* #1 Rank (Gold) */
+        .card-gold {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.16), rgba(255, 215, 0, 0.04)) !important;
+            border: 1px solid rgba(255, 215, 0, 0.4) !important;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1) !important;
+        }
+        .card-gold:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.08)) !important;
+            border-color: rgba(255, 215, 0, 0.7) !important;
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.2) !important;
+        }
+        .rank-gold {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+        }
+
+        /* #2 Rank (Silver) */
+        .card-silver {
+            background: linear-gradient(135deg, rgba(224, 224, 224, 0.14), rgba(224, 224, 224, 0.03)) !important;
+            border: 1px solid rgba(224, 224, 224, 0.35) !important;
+            box-shadow: 0 4px 15px rgba(224, 224, 224, 0.15), inset 0 0 10px rgba(224, 224, 224, 0.08) !important;
+        }
+        .card-silver:hover {
+            background: linear-gradient(135deg, rgba(224, 224, 224, 0.22), rgba(224, 224, 224, 0.06)) !important;
+            border-color: rgba(224, 224, 224, 0.65) !important;
+            box-shadow: 0 6px 25px rgba(224, 224, 224, 0.3), inset 0 0 15px rgba(224, 224, 224, 0.15) !important;
+        }
+        .rank-silver {
+            color: #E0E0E0;
+            text-shadow: 0 0 10px rgba(224, 224, 224, 0.6);
+        }
+
+        /* #3 Rank (Bronze) */
+        .card-bronze {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.14), rgba(205, 127, 50, 0.03)) !important;
+            border: 1px solid rgba(205, 127, 50, 0.35) !important;
+            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.18), inset 0 0 10px rgba(205, 127, 50, 0.08) !important;
+        }
+        .card-bronze:hover {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.22), rgba(205, 127, 50, 0.06)) !important;
+            border-color: rgba(205, 127, 50, 0.65) !important;
+            box-shadow: 0 6px 25px rgba(205, 127, 50, 0.35), inset 0 0 15px rgba(205, 127, 50, 0.15) !important;
+        }
+        .rank-bronze {
+            color: #CD7F32;
+            text-shadow: 0 0 10px rgba(205, 127, 50, 0.6);
+        }
+
+        /* #4+ Rank (Cold Silver) */
+        .card-cold-silver {
+            background: linear-gradient(135deg, rgba(82, 96, 109, 0.12), rgba(82, 96, 109, 0.02)) !important;
+            border: 1px solid rgba(82, 96, 109, 0.25) !important;
+            box-shadow: 0 4px 12px rgba(82, 96, 109, 0.1) !important;
+        }
+        .card-cold-silver:hover {
+            background: linear-gradient(135deg, rgba(82, 96, 109, 0.18), rgba(82, 96, 109, 0.05)) !important;
+            border-color: rgba(82, 96, 109, 0.5) !important;
+            box-shadow: 0 6px 18px rgba(82, 96, 109, 0.25) !important;
+        }
+        .rank-cold-silver {
+            color: #728495;
+            text-shadow: 0 0 6px rgba(114, 132, 149, 0.3);
+        }
+
+        /* Empty Tier Placeholder */
+        .player-grid:empty::before {
+            content: "NO PLAYERS RANKED";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
+            height: 50px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+
+        /* Player Head Avatar Display */
+        .player-head-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-head {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .custom-vallow-head {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #f0f6fc;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+
+        .badge-HT1 { background: var(--ht1); color: #000; box-shadow: 0 0 10px var(--ht1-glow); }
+        .badge-LT1 { background: var(--lt1); color: #000; box-shadow: 0 0 8px var(--lt1-glow); }
+
+        .badge-HT2 { background: var(--ht2); color: #000; box-shadow: 0 0 10px var(--ht2-glow); }
+        .badge-LT2 { background: var(--lt2); color: #000; box-shadow: 0 0 8px var(--lt2-glow); }
+
+        .badge-HT3 { background: var(--ht3); color: #000; box-shadow: 0 0 10px var(--ht3-glow); }
+        .badge-LT3 { background: var(--lt3); color: #fff; box-shadow: 0 0 8px var(--lt3-glow); }
+
+        .badge-HT4 { background: var(--ht4); color: #000; box-shadow: 0 0 8px var(--ht4-glow); }
+        .badge-LT4 { background: var(--lt4); color: #fff; box-shadow: 0 0 6px var(--lt4-glow); }
+
+        .badge-HT5 { background: var(--ht5); color: #000; box-shadow: 0 0 8px var(--ht5-glow); }
+        .badge-LT5 { background: var(--lt5); color: #fff; box-shadow: 0 0 6px var(--lt5-glow); }
+
+        .badge-points {
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            color: #fff;
+            box-shadow: 0 0 8px rgba(88, 101, 242, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="modesNav"></div>
+    <input type="text" id="searchInput" placeholder="Search player name...">
+    <div id="tiersContainer"></div>
+
+    <script>
+        const modes = ["Overall", "Sword", "Pot", "Netherite Pot", "Crystal", "Mace", "UHC", "Dia SMP", "Axe"];
+        const tiersList = ["HT1", "LT1", "HT2", "LT2", "HT3", "LT3", "HT4", "LT4", "HT5", "LT5"];
+
+        const tierPoints = {
+            "HT1": 60,
+            "LT1": 45,
+            "HT2": 32,
+            "LT2": 22,
+            "HT3": 15,
+            "LT3": 10,
+            "HT4": 6,
+            "LT4": 4,
+            "HT5": 3,
+            "LT5": 2
+        };
+
+        const customSkins = {
+            "Vallow": "./pics/Vallow.png"
+        };
+
+        const defaultAvatar = "https://minotar.net/helm/MHF_Steve/44.png";
+        let currentMode = "Overall";
+
+        const playerData = [
+            // Vallow
+            { name: "Vallow", mode: "Sword", tier: "LT1" },
+            { name: "Vallow", mode: "Pot", tier: "LT1" },
+            { name: "Vallow", mode: "Netherite Pot", tier: "HT1" },
+            { name: "Vallow", mode: "Crystal", tier: "HT1" },
+            { name: "Vallow", mode: "Mace", tier: "LT1" },
+            { name: "Vallow", mode: "UHC", tier: "HT1" },
+            { name: "Vallow", mode: "Dia SMP", tier: "HT1" },
+            { name: "Vallow", mode: "Axe", tier: "HT1" },
+
+            // B3yondlimit
+            { name: "B3yondlimit", mode: "Sword", tier: "HT1" },
+            { name: "B3yondlimit", mode: "Pot", tier: "HT1" },
+            { name: "B3yondlimit", mode: "Netherite Pot", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Crystal", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Mace", tier: "HT1" },
+            { name: "B3yondlimit", mode: "UHC", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Dia SMP", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Axe", tier: "LT1" },
+
+            // SNOWFL
+            { name: "SNOWFL", mode: "Sword", tier: "HT2" },
+            { name: "SNOWFL", mode: "Pot", tier: "HT2" },
+            { name: "SNOWFL", mode: "Netherite Pot", tier: "HT2" },
+            { name: "SNOWFL", mode: "Crystal", tier: "HT2" },
+            { name: "SNOWFL", mode: "Mace", tier: "HT2" },
+            { name: "SNOWFL", mode: "UHC", tier: "HT2" },
+            { name: "SNOWFL", mode: "Dia SMP", tier: "HT2" },
+            { name: "SNOWFL", mode: "Axe", tier: "HT2" },
+
+            // Zenkai
+            { name: "Zenkai", mode: "Sword", tier: "LT2" },
+            { name: "Zenkai", mode: "Pot", tier: "LT2" },
+            { name: "Zenkai", mode: "Netherite Pot", tier: "LT2" },
+            { name: "Zenkai", mode: "Crystal", tier: "LT2" },
+            { name: "Zenkai", mode: "Mace", tier: "LT2" },
+            { name: "Zenkai", mode: "UHC", tier: "LT2" },
+            { name: "Zenkai", mode: "Dia SMP", tier: "LT2" },
+            { name: "Zenkai", mode: "Axe", tier: "LT2" },
+
+            // YUYA
+            { name: "YUYA", mode: "Sword", tier: "HT3" },
+            { name: "YUYA", mode: "Pot", tier: "HT3" },
+            { name: "YUYA", mode: "Netherite Pot", tier: "HT3" },
+            { name: "YUYA", mode: "Crystal", tier: "HT3" },
+            { name: "YUYA", mode: "Mace", tier: "HT3" },
+            { name: "YUYA", mode: "UHC", tier: "HT3" },
+            { name: "YUYA", mode: "Dia SMP", tier: "HT3" },
+            { name: "YUYA", mode: "Axe", tier: "HT3" },
+
+            // Junior
+            { name: "Junior", mode: "Sword", tier: "HT5" },
+            { name: "Junior", mode: "Pot", tier: "LT5" },
+            { name: "Junior", mode: "Netherite Pot", tier: "HT5" },
+            { name: "Junior", mode: "Crystal", tier: "HT5" },
+            { name: "Junior", mode: "Mace", tier: "HT5" },
+            { name: "Junior", mode: "UHC", tier: "HT5" },
+            { name: "Junior", mode: "Dia SMP", tier: "HT5" },
+            { name: "Junior", mode: "Axe", tier: "HT5" },
+
+            // Zri3
+            { name: "Zri3", mode: "Sword", tier: "LT5" },
+            { name: "Zri3", mode: "Pot", tier: "HT5" },
+            { name: "Zri3", mode: "Netherite Pot", tier: "LT5" },
+            { name: "Zri3", mode: "Crystal", tier: "LT5" },
+            { name: "Zri3", mode: "Mace", tier: "LT5" },
+            { name: "Zri3", mode: "UHC", tier: "LT5" },
+            { name: "Zri3", mode: "Dia SMP", tier: "LT5" },
+            { name: "Zri3", mode: "Axe", tier: "LT5" },
+
+            // Ahmed
+            { name: "Ahmed", mode: "Sword", tier: "LT3" },
+            { name: "Ahmed", mode: "Pot", tier: "LT3" },
+            { name: "Ahmed", mode: "Netherite Pot", tier: "LT3" },
+            { name: "Ahmed", mode: "Crystal", tier: "LT3" },
+            { name: "Ahmed", mode: "Mace", tier: "LT3" },
+            { name: "Ahmed", mode: "UHC", tier: "LT3" },
+            { name: "Ahmed", mode: "Dia SMP", tier: "LT3" },
+            { name: "Ahmed", mode: "Axe", tier: "LT3" }
+        ];
+
+        function renderModesNav() {
+            const nav = document.getElementById("modesNav");
+            nav.innerHTML = "";
+            modes.forEach(mode => {
+                const btn = document.createElement("button");
+                btn.className = `mode-btn ${mode === currentMode ? 'active' : ''}`;
+                btn.textContent = mode;
+                btn.onclick = () => {
+                    currentMode = mode;
+                    renderModesNav();
+                    renderTiers();
+                };
+                nav.appendChild(btn);
+            });
+        }
+
+        function renderTiers() {
+            const container = document.getElementById("tiersContainer");
+            const searchVal = document.getElementById("searchInput").value.toLowerCase();
+            container.innerHTML = "";
+
+            if (currentMode === "Overall") {
+                renderOverallLeaderboard(container, searchVal);
+            } else {
+                renderGamemodeTiers(container, searchVal);
+            }
+        }
+
+        function renderGamemodeTiers(container, searchVal) {
+            tiersList.forEach(tier => {
+                const playersInTier = playerData.filter(p => 
+                    p.mode === currentMode && 
+                    p.tier === tier && 
+                    p.name.toLowerCase().includes(searchVal)
+                );
+
+                const row = document.createElement("div");
+                row.className = "tier-row";
+
+                const header = document.createElement("div");
+                header.className = "tier-header";
+                header.innerHTML = `
+                    <span class="tier-title tier-title-${tier}">${tier}</span>
+                    <span class="tier-count">${playersInTier.length} ${playersInTier.length === 1 ? 'Player' : 'Players'}</span>
+                `;
+
+                const grid = document.createElement("div");
+                grid.className = "player-grid";
+
+                playersInTier.forEach(player => {
+                    const card = createPlayerCard(player.name, player.tier, false);
+                    grid.appendChild(card);
+                });
+
+                row.appendChild(header);
+                row.appendChild(grid);
+                container.appendChild(row);
+            });
+        }
+
+        function renderOverallLeaderboard(container, searchVal) {
+            const pointsMap = {};
+
+            playerData.forEach(p => {
+                const pts = tierPoints[p.tier] || 0;
+                pointsMap[p.name] = (pointsMap[p.name] || 0) + pts;
+            });
+
+            const rankedPlayers = Object.keys(pointsMap)
+                .map(name => ({ name, points: pointsMap[name] }))
+                .sort((a, b) => b.points - a.points)
+                .map((player, index) => ({ ...player, rank: index + 1 }));
+
+            const filteredPlayers = rankedPlayers.filter(p => 
+                p.name.toLowerCase().includes(searchVal)
+            );
+
+            const row = document.createElement("div");
+            row.className = "tier-row";
+
+            const header = document.createElement("div");
+            header.className = "tier-header";
+            header.innerHTML = `
+                <span class="tier-title tier-title-HT1">OVERALL LEADERBOARD</span>
+                <span class="tier-count">${filteredPlayers.length} Ranked</span>
+            `;
+
+            const grid = document.createElement("div");
+            grid.className = "player-grid";
+
+            filteredPlayers.forEach((player) => {
+                const card = createPlayerCard(player.name, `${player.points} PTS`, true, player.rank);
+                grid.appendChild(card);
+            });
+
+            row.appendChild(header);
+            row.appendChild(grid);
+            container.appendChild(row);
+        }
+
+        function createPlayerCard(name, badgeText, isOverall = false, rank = 0) {
+            const card = document.createElement("div");
+            card.className = "player-card";
+
+            let rankHtml = '';
+            if (isOverall) {
+                let rankClass = "rank-cold-silver";
+                let cardClass = "card-cold-silver";
+
+                if (rank === 1) {
+                    rankClass = "rank-gold";
+                    cardClass = "card-gold";
+                } else if (rank === 2) {
+                    rankClass = "rank-silver";
+                    cardClass = "card-silver";
+                } else if (rank === 3) {
+                    rankClass = "rank-bronze";
+                    cardClass = "card-bronze";
+                }
+
+                card.classList.add(cardClass);
+                rankHtml = `<span class="overall-rank ${rankClass}">#${rank}</span>`;
+            }
+
+            const badgeClass = isOverall ? 'badge-points' : `badge-${badgeText}`;
+            
+            let imgHtml = "";
+            if (customSkins[name]) {
+                imgHtml = `<img class="player-head custom-vallow-head" src="${customSkins[name]}" alt="${name}">`;
+            } else {
+                const headUrl = `https://minotar.net/helm/${name}/44.png`;
+                imgHtml = `<img class="player-head" src="${headUrl}" alt="${name}" onerror="this.onerror=null; this.src='${defaultAvatar}';">`;
+            }
+
+            card.innerHTML = `
+                <div class="player-card-left">
+                    ${rankHtml}
+                    <div class="player-head-wrapper">
+                        ${imgHtml}
+                    </div>
+                    <div class="player-info">
+                        <span class="player-name">${name}</span>
+                    </div>
+                </div>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+            `;
+            return card;
+        }
+
+        document.getElementById("searchInput").addEventListener("input", renderTiers);
+
+        renderModesNav();
+        renderTiers();
+    </script>
+</body>
+</html>
