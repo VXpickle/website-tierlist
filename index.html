@@ -358,10 +358,20 @@
         }
 
         .test-score {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 900;
-            color: #2ebd85;
             letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .test-score.won {
+            color: #2ebd85; /* Green */
+            text-shadow: 0 0 10px rgba(46, 189, 133, 0.3);
+        }
+
+        .test-score.lost {
+            color: #ff4d4d; /* Red */
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
         }
 
         .test-progression {
@@ -616,6 +626,20 @@
                 const card = document.createElement("div");
                 card.className = "test-card";
 
+                // Check outcome from score or log
+                let isWon = false;
+                if (log.result) {
+                    isWon = log.result === "won";
+                } else if (log.score) {
+                    const scores = log.score.split("-").map(s => parseInt(s.trim()));
+                    if (scores.length === 2) {
+                        isWon = scores[0] > scores[1];
+                    }
+                }
+
+                const statusClass = isWon ? "won" : "lost";
+                const statusText = isWon ? "WON" : "LOST";
+
                 card.innerHTML = `
                     <div class="test-header">
                         <span class="test-gamemode-tag">${log.mode}</span>
@@ -644,7 +668,7 @@
                             </div>
                         </div>
                         <div class="test-details">
-                            <span class="test-score">${log.score}</span>
+                            <span class="test-score ${statusClass}">${log.score} (${statusText})</span>
                             <div class="test-progression">
                                 <span class="badge badge-${log.prevTier}">${log.prevTier}</span>
                                 <span class="test-arrow">➜</span>
