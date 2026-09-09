@@ -346,10 +346,11 @@
             "LT3": 10, "HT4": 6,  "LT4": 4,  "HT5": 3,  "LT5": 2
         };
 
-        // Custom Skin File Mapping
+        // Custom Skin File Mapping (Includes Zenkai, Vallow, and Ahmed)
         const customSkins = {
             "Zenkai": "./pics/zenkai.png",
-            "Vallow": "./pics/Vallow.png"
+            "Vallow": "./pics/vallow.png",
+            "Ahmed": "./pics/ahmed.png"
         };
 
         // Cache pre-cropped face canvas data URLs
@@ -434,7 +435,6 @@
                 canvas.height = 8;
                 const ctx = canvas.getContext("2d");
 
-                // Disable smoothing for sharp pixels
                 ctx.imageSmoothingEnabled = false;
 
                 // 1. Draw base face layer (X:8, Y:8, W:8, H:8)
@@ -530,7 +530,7 @@
                         <div class="test-participants">
                             <div class="player-card-left">
                                 <div class="player-head-wrapper">
-                                    <img class="player-head" id="head-tested-${log.testedPlayer}-${Math.random().toString(36).substr(2, 5)}" alt="${log.testedPlayer}">
+                                    <img class="player-head" alt="${log.testedPlayer}">
                                 </div>
                                 <div class="player-info">
                                     <span class="role-label">Tested</span>
@@ -540,7 +540,7 @@
                             <span class="test-vs">VS</span>
                             <div class="player-card-left">
                                 <div class="player-head-wrapper">
-                                    <img class="player-head" id="head-tester-${log.tester}-${Math.random().toString(36).substr(2, 5)}" alt="${log.tester}">
+                                    <img class="player-head" alt="${log.tester}">
                                 </div>
                                 <div class="player-info">
                                     <span class="role-label">Tester</span>
@@ -561,7 +561,6 @@
 
                 grid.appendChild(card);
 
-                // Populate avatars after adding elements to DOM
                 const testedImg = card.querySelectorAll('.player-head')[0];
                 const testerImg = card.querySelectorAll('.player-head')[1];
                 loadAvatarIntoImg(testedImg, log.testedPlayer);
