@@ -152,7 +152,7 @@
             width: 100%;
         }
 
-        /* Cards */
+        /* Base Cards */
         .player-card {
             display: flex;
             align-items: center;
@@ -161,10 +161,19 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             padding: 12px 20px;
             border-radius: 12px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
             width: 100%;
             max-width: 600px;
             box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        /* Default Card Hover */
+        .player-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(88, 101, 242, 0.5);
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.25);
         }
 
         .player-card-left {
@@ -210,17 +219,52 @@
             text-align: center;
         }
 
-        /* Leaderboard Ranks */
-        .card-gold { background: linear-gradient(135deg, rgba(255, 215, 0, 0.16), rgba(255, 215, 0, 0.04)) !important; border: 1px solid rgba(255, 215, 0, 0.4) !important; }
+        /* Leaderboard Ranks & Hover Pop-outs */
+        .card-gold { 
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.16), rgba(255, 215, 0, 0.04)) !important; 
+            border: 1px solid rgba(255, 215, 0, 0.4) !important; 
+        }
+        .card-gold:hover {
+            transform: translateY(-5px) scale(1.015) !important;
+            border-color: rgba(255, 215, 0, 0.9) !important;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.45) !important;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.08)) !important;
+        }
         .rank-gold { color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
         
-        .card-silver { background: linear-gradient(135deg, rgba(224, 224, 224, 0.14), rgba(224, 224, 224, 0.03)) !important; border: 1px solid rgba(224, 224, 224, 0.35) !important; }
+        .card-silver { 
+            background: linear-gradient(135deg, rgba(224, 224, 224, 0.14), rgba(224, 224, 224, 0.03)) !important; 
+            border: 1px solid rgba(224, 224, 224, 0.35) !important; 
+        }
+        .card-silver:hover {
+            transform: translateY(-5px) scale(1.015) !important;
+            border-color: rgba(224, 224, 224, 0.85) !important;
+            box-shadow: 0 10px 30px rgba(224, 224, 224, 0.45) !important;
+            background: linear-gradient(135deg, rgba(224, 224, 224, 0.22), rgba(224, 224, 224, 0.06)) !important;
+        }
         .rank-silver { color: #E0E0E0; text-shadow: 0 0 10px rgba(224, 224, 224, 0.6); }
         
-        .card-bronze { background: linear-gradient(135deg, rgba(205, 127, 50, 0.14), rgba(205, 127, 50, 0.03)) !important; border: 1px solid rgba(205, 127, 50, 0.35) !important; }
+        .card-bronze { 
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.14), rgba(205, 127, 50, 0.03)) !important; 
+            border: 1px solid rgba(205, 127, 50, 0.35) !important; 
+        }
+        .card-bronze:hover {
+            transform: translateY(-5px) scale(1.015) !important;
+            border-color: rgba(205, 127, 50, 0.85) !important;
+            box-shadow: 0 10px 30px rgba(205, 127, 50, 0.45) !important;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.22), rgba(205, 127, 50, 0.06)) !important;
+        }
         .rank-bronze { color: #CD7F32; text-shadow: 0 0 10px rgba(205, 127, 50, 0.6); }
 
-        .card-cold-silver { background: linear-gradient(135deg, rgba(82, 96, 109, 0.12), rgba(82, 96, 109, 0.02)) !important; border: 1px solid rgba(82, 96, 109, 0.25) !important; }
+        .card-cold-silver { 
+            background: linear-gradient(135deg, rgba(82, 96, 109, 0.12), rgba(82, 96, 109, 0.02)) !important; 
+            border: 1px solid rgba(82, 96, 109, 0.25) !important; 
+        }
+        .card-cold-silver:hover {
+            transform: translateY(-4px) scale(1.01) !important;
+            border-color: rgba(114, 132, 149, 0.6) !important;
+            box-shadow: 0 8px 25px rgba(114, 132, 149, 0.3) !important;
+        }
         .rank-cold-silver { color: #728495; }
 
         /* Badges */
@@ -259,6 +303,15 @@
             width: 100%;
             max-width: 600px;
             box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .test-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(88, 101, 242, 0.4);
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.25);
         }
 
         .test-header {
@@ -397,7 +450,7 @@
             { name: "B3yondlimit", mode: "Dia SMP", tier: "LT1" },
             { name: "B3yondlimit", mode: "Axe", tier: "LT1" },
 
-            // Ahmed (Keeps LT3 in Crystal as he lost the test)
+            // Ahmed
             { name: "Ahmed", mode: "Sword", tier: "LT3" },
             { name: "Ahmed", mode: "Pot", tier: "LT3" },
             { name: "Ahmed", mode: "Netherite Pot", tier: "LT3" },
@@ -480,10 +533,9 @@
 
                 ctx.imageSmoothingEnabled = false;
 
-                // Base Face (X: 8, Y: 8, W: 8, H: 8)
+                // Base Face
                 ctx.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8);
-
-                // Hat Overlay Layer (X: 40, Y: 8, W: 8, H: 8)
+                // Hat Overlay
                 ctx.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
 
                 const dataUrl = canvas.toDataURL();
