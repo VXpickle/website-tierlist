@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Tiers & Tests History</title>
+    <title>Minecraft Tiers & Leaderboard</title>
     <style>
         :root {
             --bg-dark: #0a0c10;
@@ -346,21 +346,19 @@
             "LT3": 10, "HT4": 6,  "LT4": 4,  "HT5": 3,  "LT5": 2
         };
 
-        // Custom Skin File Mapping (Includes Zenkai, Vallow, and Ahmed)
         const customSkins = {
             "Zenkai": "./pics/zenkai.png",
             "Vallow": "./pics/vallow.png",
             "Ahmed": "./pics/ahmed.png"
         };
 
-        // Cache pre-cropped face canvas data URLs
         const croppedFaceCache = {};
-
         const defaultAvatar = "https://minotar.net/helm/MHF_Steve/44.png";
-        let currentMode = "Recent Tests";
+        let currentMode = "Overall";
 
         const playerData = [
-            { name: "Zenkai", mode: "Sword", tier: "HT1" },
+            // Zenkai
+            { name: "Zenkai", mode: "Sword", tier: "LT1" },
             { name: "Zenkai", mode: "Pot", tier: "HT2" },
             { name: "Zenkai", mode: "Netherite Pot", tier: "HT2" },
             { name: "Zenkai", mode: "Crystal", tier: "LT2" },
@@ -369,6 +367,7 @@
             { name: "Zenkai", mode: "Dia SMP", tier: "HT2" },
             { name: "Zenkai", mode: "Axe", tier: "HT2" },
 
+            // SNOWFL
             { name: "SNOWFL", mode: "Sword", tier: "LT2" },
             { name: "SNOWFL", mode: "Pot", tier: "HT2" },
             { name: "SNOWFL", mode: "Netherite Pot", tier: "LT2" },
@@ -378,6 +377,7 @@
             { name: "SNOWFL", mode: "Dia SMP", tier: "HT2" },
             { name: "SNOWFL", mode: "Axe", tier: "HT2" },
 
+            // Vallow
             { name: "Vallow", mode: "Sword", tier: "HT2" },
             { name: "Vallow", mode: "Pot", tier: "LT1" },
             { name: "Vallow", mode: "Netherite Pot", tier: "HT1" },
@@ -387,6 +387,7 @@
             { name: "Vallow", mode: "Dia SMP", tier: "HT1" },
             { name: "Vallow", mode: "Axe", tier: "HT1" },
 
+            // B3yondlimit
             { name: "B3yondlimit", mode: "Sword", tier: "HT1" },
             { name: "B3yondlimit", mode: "Pot", tier: "HT1" },
             { name: "B3yondlimit", mode: "Netherite Pot", tier: "LT1" },
@@ -396,7 +397,25 @@
             { name: "B3yondlimit", mode: "Dia SMP", tier: "LT1" },
             { name: "B3yondlimit", mode: "Axe", tier: "LT1" },
 
-            { name: "Ahmed", mode: "Crystal", tier: "LT1" }
+            // Ahmed
+            { name: "Ahmed", mode: "Crystal", tier: "LT1" },
+
+            // ShadowMist
+            { name: "ShadowMist", mode: "Sword", tier: "HT3" },
+            { name: "ShadowMist", mode: "Pot", tier: "LT3" },
+
+            // yayawar
+            { name: "yayawar", mode: "Sword", tier: "HT3" },
+            { name: "yayawar", mode: "Pot", tier: "HT3" },
+            { name: "yayawar", mode: "Crystal", tier: "HT3" },
+
+            // Zri3
+            { name: "Zri3", mode: "Sword", tier: "LT3" },
+            { name: "Zri3", mode: "Mace", tier: "HT3" },
+
+            // Junior
+            { name: "Junior", mode: "Sword", tier: "HT3" },
+            { name: "Junior", mode: "UHC", tier: "LT3" }
         ];
 
         const testLogs = [
@@ -420,7 +439,6 @@
             }
         ];
 
-        // Dynamic Cropping of Face + Hat Layer from standard Minecraft Skin Files
         function cropFaceFromSkin(src, callback) {
             if (croppedFaceCache[src]) {
                 callback(croppedFaceCache[src]);
@@ -437,10 +455,10 @@
 
                 ctx.imageSmoothingEnabled = false;
 
-                // 1. Draw base face layer (X:8, Y:8, W:8, H:8)
+                // Base Face (X: 8, Y: 8, W: 8, H: 8)
                 ctx.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8);
 
-                // 2. Draw outer hat/helmet layer overlay (X:40, Y:8, W:8, H:8)
+                // Hat Overlay Layer (X: 40, Y: 8, W: 8, H: 8)
                 ctx.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
 
                 const dataUrl = canvas.toDataURL();
@@ -579,6 +597,8 @@
                     p.tier === tier && 
                     p.name.toLowerCase().includes(searchVal)
                 );
+
+                if (playersInTier.length === 0) return;
 
                 const row = document.createElement("div");
                 row.className = "tier-row";
