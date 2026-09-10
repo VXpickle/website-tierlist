@@ -1,4 +1,528 @@
-const testLogs = [
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Tiers & Leaderboard</title>
+    <style>
+        :root {
+            --bg-dark: #0a0c10;
+            --card-bg: rgba(22, 27, 34, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            
+            /* Tier Colors */
+            --ht1: #FFD700;
+            --lt1: #C59B27;
+            --ht2: #E0E0E0;
+            --lt2: #A6A6A6;
+            --ht3: #CD7F32;
+            --lt3: #A05A2C;
+            --ht4: #A78BFA;
+            --lt4: #8B5CF6;
+            --ht5: #B8A9DA;
+            --lt5: #7C68A6;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(88, 101, 242, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 215, 0, 0.08) 0px, transparent 50%);
+            color: #f0f6fc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 30px;
+        }
+
+        /* Navigation Buttons */
+        #modesNav {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #8b949e;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .mode-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+        }
+
+        /* Search Input */
+        #searchInput {
+            display: block;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto 35px auto;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #searchInput:focus {
+            border-color: #5865F2;
+            box-shadow: 0 0 12px rgba(88, 101, 242, 0.3);
+        }
+
+        /* Main Tier Row Container */
+        .tier-row {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 0 auto 20px auto;
+            backdrop-filter: blur(12px);
+            box-sizing: border-box;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 100%;
+            max-width: 750px;
+        }
+
+        .tier-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .tier-title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .tier-count {
+            position: absolute;
+            right: 0;
+            font-size: 12px;
+            font-weight: 700;
+            color: #8b949e;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Tier Colors & Glows */
+        .tier-title-HT1 { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+        .tier-title-LT1 { color: #C59B27 !important; text-shadow: 0 0 8px rgba(197, 155, 39, 0.3); }
+        .tier-title-HT2 { color: #E0E0E0 !important; text-shadow: 0 0 10px rgba(224, 224, 224, 0.4); }
+        .tier-title-LT2 { color: #A6A6A6 !important; text-shadow: 0 0 8px rgba(166, 166, 166, 0.3); }
+        .tier-title-HT3 { color: #CD7F32 !important; text-shadow: 0 0 10px rgba(205, 127, 50, 0.4); }
+        .tier-title-LT3 { color: #A05A2C !important; text-shadow: 0 0 8px rgba(160, 90, 44, 0.3); }
+        .tier-title-HT4 { color: #A78BFA !important; text-shadow: 0 0 10px rgba(167, 139, 250, 0.35); }
+        .tier-title-LT4 { color: #8B5CF6 !important; text-shadow: 0 0 8px rgba(139, 92, 246, 0.25); }
+        .tier-title-HT5 { color: #B8A9DA !important; text-shadow: 0 0 10px rgba(184, 169, 218, 0.4); }
+        .tier-title-LT5 { color: #7C68A6 !important; text-shadow: 0 0 8px rgba(124, 104, 166, 0.3); }
+
+        .player-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Base Cards */
+        .player-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        /* Default Card Hover */
+        .player-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(88, 101, 242, 0.5);
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.25);
+        }
+
+        .player-card-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .player-head-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-head {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #f0f6fc;
+        }
+
+        .overall-rank {
+            font-size: 18px;
+            font-weight: 900;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        /* Leaderboard Ranks & Hover Pop-outs */
+        .card-gold { 
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.16), rgba(255, 215, 0, 0.04)) !important; 
+            border: 1px solid rgba(255, 215, 0, 0.4) !important; 
+        }
+        .card-gold:hover {
+            transform: translateY(-5px) scale(1.015) !important;
+            border-color: rgba(255, 215, 0, 0.9) !important;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.45) !important;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.08)) !important;
+        }
+        .rank-gold { color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+        
+        .card-silver { 
+            background: linear-gradient(135deg, rgba(224, 224, 224, 0.14), rgba(224, 224, 224, 0.03)) !important; 
+            border: 1px solid rgba(224, 224, 224, 0.35) !important; 
+        }
+        .card-silver:hover {
+            transform: translateY(-5px) scale(1.015) !important;
+            border-color: rgba(224, 224, 224, 0.85) !important;
+            box-shadow: 0 10px 30px rgba(224, 224, 224, 0.45) !important;
+            background: linear-gradient(135deg, rgba(224, 224, 224, 0.22), rgba(224, 224, 224, 0.06)) !important;
+        }
+        .rank-silver { color: #E0E0E0; text-shadow: 0 0 10px rgba(224, 224, 224, 0.6); }
+        
+        .card-bronze { 
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.14), rgba(205, 127, 50, 0.03)) !important; 
+            border: 1px solid rgba(205, 127, 50, 0.35) !important; 
+        }
+        .card-bronze:hover {
+            transform: translateY(-5px) scale(1.015) !important;
+            border-color: rgba(205, 127, 50, 0.85) !important;
+            box-shadow: 0 10px 30px rgba(205, 127, 50, 0.45) !important;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.22), rgba(205, 127, 50, 0.06)) !important;
+        }
+        .rank-bronze { color: #CD7F32; text-shadow: 0 0 10px rgba(205, 127, 50, 0.6); }
+
+        .card-cold-silver { 
+            background: linear-gradient(135deg, rgba(82, 96, 109, 0.12), rgba(82, 96, 109, 0.02)) !important; 
+            border: 1px solid rgba(82, 96, 109, 0.25) !important; 
+        }
+        .card-cold-silver:hover {
+            transform: translateY(-4px) scale(1.01) !important;
+            border-color: rgba(114, 132, 149, 0.6) !important;
+            box-shadow: 0 8px 25px rgba(114, 132, 149, 0.3) !important;
+        }
+        .rank-cold-silver { color: #728495; }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+
+        .badge-HT1 { background: var(--ht1); color: #000; }
+        .badge-LT1 { background: var(--lt1); color: #000; }
+        .badge-HT2 { background: var(--ht2); color: #000; }
+        .badge-LT2 { background: var(--lt2); color: #000; }
+        .badge-HT3 { background: var(--ht3); color: #000; }
+        .badge-LT3 { background: var(--lt3); color: #fff; }
+        .badge-HT4 { background: var(--ht4); color: #000; }
+        .badge-LT4 { background: var(--lt4); color: #fff; }
+        .badge-HT5 { background: var(--ht5); color: #000; }
+        .badge-LT5 { background: var(--lt5); color: #fff; }
+        .badge-NONE { background: #333; color: #aaa; }
+        .badge-points { background: linear-gradient(135deg, #5865F2, #4752C4); color: #fff; }
+
+        /* Recent Test Log Cards */
+        .test-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .test-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(88, 101, 242, 0.4);
+            box-shadow: 0 8px 24px rgba(88, 101, 242, 0.25);
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #8b949e;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        .test-gamemode-tag {
+            background: rgba(88, 101, 242, 0.15);
+            color: #5865F2;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .test-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .test-participants {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .test-vs {
+            font-weight: 900;
+            color: #e06c75;
+            font-size: 14px;
+        }
+
+        .test-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .test-score {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .test-score.won {
+            color: #2ebd85; /* Green */
+            text-shadow: 0 0 10px rgba(46, 189, 133, 0.3);
+        }
+
+        .test-score.lost {
+            color: #ff4d4d; /* Red */
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+        }
+
+        .test-progression {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .test-arrow {
+            color: #8b949e;
+        }
+
+        .role-label {
+            font-size: 10px;
+            color: #8b949e;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="modesNav"></div>
+    <input type="text" id="searchInput" placeholder="Search player or tester...">
+    <div id="tiersContainer"></div>
+
+    <script>
+        const modes = ["Overall", "Recent Tests", "Sword", "Pot", "Netherite Pot", "Crystal", "Mace", "UHC", "Dia SMP", "Axe"];
+        const tiersList = ["HT1", "LT1", "HT2", "LT2", "HT3", "LT3", "HT4", "LT4", "HT5", "LT5"];
+
+        const tierPoints = {
+            "HT1": 60, "LT1": 45, "HT2": 32, "LT2": 22, "HT3": 15,
+            "LT3": 10, "HT4": 6,  "LT4": 4,  "HT5": 3,  "LT5": 2
+        };
+
+        const customSkins = {
+            "Zenkai": "./pics/zenkai.png",
+            "Vallow": "./pics/vallow.png",
+            "Ahmed": "./pics/ahmed.png",
+            "B3yondlimit": "./pics/b3yondlimit.png"
+        };
+
+        const croppedFaceCache = {};
+        const defaultAvatar = "https://minotar.net/helm/MHF_Steve/44.png";
+        let currentMode = "Overall";
+
+        const playerData = [
+            // Zenkai
+            { name: "Zenkai", mode: "Sword", tier: "LT1" },
+            { name: "Zenkai", mode: "Pot", tier: "HT2" },
+            { name: "Zenkai", mode: "Netherite Pot", tier: "HT2" },
+            { name: "Zenkai", mode: "Crystal", tier: "LT2" },
+            { name: "Zenkai", mode: "Mace", tier: "LT2" },
+            { name: "Zenkai", mode: "UHC", tier: "LT2" },
+            { name: "Zenkai", mode: "Dia SMP", tier: "HT2" },
+            { name: "Zenkai", mode: "Axe", tier: "HT2" },
+
+            // SNOWFL
+            { name: "SNOWFL", mode: "Sword", tier: "LT2" },
+            { name: "SNOWFL", mode: "Pot", tier: "LT2" },
+            { name: "SNOWFL", mode: "Netherite Pot", tier: "LT2" },
+            { name: "SNOWFL", mode: "Crystal", tier: "LT2" },
+            { name: "SNOWFL", mode: "Mace", tier: "HT2" },
+            { name: "SNOWFL", mode: "UHC", tier: "HT2" },
+            { name: "SNOWFL", mode: "Dia SMP", tier: "LT2" },
+            { name: "SNOWFL", mode: "Axe", tier: "LT2" },
+
+            // Vallow
+            { name: "Vallow", mode: "Sword", tier: "HT2" },
+            { name: "Vallow", mode: "Pot", tier: "LT1" },
+            { name: "Vallow", mode: "Netherite Pot", tier: "HT1" },
+            { name: "Vallow", mode: "Crystal", tier: "HT1" },
+            { name: "Vallow", mode: "Mace", tier: "LT1" },
+            { name: "Vallow", mode: "UHC", tier: "HT1" },
+            { name: "Vallow", mode: "Dia SMP", tier: "HT1" },
+            { name: "Vallow", mode: "Axe", tier: "HT1" },
+
+            // B3yondlimit
+            { name: "B3yondlimit", mode: "Sword", tier: "HT1" },
+            { name: "B3yondlimit", mode: "Pot", tier: "HT1" },
+            { name: "B3yondlimit", mode: "Netherite Pot", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Crystal", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Mace", tier: "HT1" },
+            { name: "B3yondlimit", mode: "UHC", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Dia SMP", tier: "LT1" },
+            { name: "B3yondlimit", mode: "Axe", tier: "LT1" },
+
+            // Ahmed
+            { name: "Ahmed", mode: "Sword", tier: "LT3" },
+            { name: "Ahmed", mode: "Pot", tier: "LT3" },
+            { name: "Ahmed", mode: "Netherite Pot", tier: "LT3" },
+            { name: "Ahmed", mode: "Crystal", tier: "HT2" },
+            { name: "Ahmed", mode: "Mace", tier: "LT3" },
+            { name: "Ahmed", mode: "UHC", tier: "LT3" },
+            { name: "Ahmed", mode: "Dia SMP", tier: "LT3" },
+            { name: "Ahmed", mode: "Axe", tier: "LT3" },
+
+            // ShadowMist
+            { name: "ShadowMist", mode: "Sword", tier: "HT4" },
+            { name: "ShadowMist", mode: "Pot", tier: "HT4" },
+            { name: "ShadowMist", mode: "Netherite Pot", tier: "HT4" },
+            { name: "ShadowMist", mode: "Crystal", tier: "HT4" },
+            { name: "ShadowMist", mode: "Mace", tier: "HT4" },
+            { name: "ShadowMist", mode: "UHC", tier: "HT4" },
+            { name: "ShadowMist", mode: "Dia SMP", tier: "HT4" },
+            { name: "ShadowMist", mode: "Axe", tier: "HT4" },
+
+            // Rayan
+            { name: "Rayan", mode: "Sword", tier: "LT4" },
+            { name: "Rayan", mode: "Pot", tier: "LT4" },
+            { name: "Rayan", mode: "Netherite Pot", tier: "LT4" },
+            { name: "Rayan", mode: "Crystal", tier: "LT4" },
+            { name: "Rayan", mode: "Mace", tier: "LT4" },
+            { name: "Rayan", mode: "UHC", tier: "LT4" },
+            { name: "Rayan", mode: "Dia SMP", tier: "LT4" },
+            { name: "Rayan", mode: "Axe", tier: "LT4" },
+
+            // yayawar
+            { name: "yayawar", mode: "Sword", tier: "HT3" },
+            { name: "yayawar", mode: "Pot", tier: "HT3" },
+            { name: "yayawar", mode: "Netherite Pot", tier: "HT3" },
+            { name: "yayawar", mode: "Crystal", tier: "HT3" },
+            { name: "yayawar", mode: "Mace", tier: "HT3" },
+            { name: "yayawar", mode: "UHC", tier: "HT3" },
+            { name: "yayawar", mode: "Dia SMP", tier: "HT3" },
+            { name: "yayawar", mode: "Axe", tier: "HT3" },
+
+            // Zri3
+            { name: "Zri3", mode: "Sword", tier: "LT5" },
+            { name: "Zri3", mode: "Pot", tier: "HT5" },
+            { name: "Zri3", mode: "Netherite Pot", tier: "LT5" },
+            { name: "Zri3", mode: "Crystal", tier: "LT5" },
+            { name: "Zri3", mode: "Mace", tier: "LT5" },
+            { name: "Zri3", mode: "UHC", tier: "LT5" },
+            { name: "Zri3", mode: "Dia SMP", tier: "LT5" },
+            { name: "Zri3", mode: "Axe", tier: "LT5" },
+
+            // Junior
+            { name: "Junior", mode: "Sword", tier: "HT5" },
+            { name: "Junior", mode: "Pot", tier: "LT5" },
+            { name: "Junior", mode: "Netherite Pot", tier: "HT5" },
+            { name: "Junior", mode: "Crystal", tier: "HT5" },
+            { name: "Junior", mode: "Mace", tier: "HT5" },
+            { name: "Junior", mode: "UHC", tier: "HT5" },
+            { name: "Junior", mode: "Dia SMP", tier: "HT5" },
+            { name: "Junior", mode: "Axe", tier: "HT5" }
+        ];
+
+        const testLogs = [
             {
                 testedPlayer: "SNOWFL",
                 tester: "Ahmed",
@@ -54,3 +578,286 @@ const testLogs = [
                 date: "2026-03-29"
             }
         ];
+
+        function cropFaceFromSkin(src, callback) {
+            if (croppedFaceCache[src]) {
+                callback(croppedFaceCache[src]);
+                return;
+            }
+
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = 8;
+                canvas.height = 8;
+                const ctx = canvas.getContext("2d");
+
+                ctx.imageSmoothingEnabled = false;
+
+                // Base Face
+                ctx.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8);
+                // Hat Overlay
+                ctx.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
+
+                const dataUrl = canvas.toDataURL();
+                croppedFaceCache[src] = dataUrl;
+                callback(dataUrl);
+            };
+            img.onerror = () => {
+                callback(defaultAvatar);
+            };
+            img.src = src;
+        }
+
+        function renderModesNav() {
+            const nav = document.getElementById("modesNav");
+            nav.innerHTML = "";
+            modes.forEach(mode => {
+                const btn = document.createElement("button");
+                btn.className = `mode-btn ${mode === currentMode ? 'active' : ''}`;
+                btn.textContent = mode;
+                btn.onclick = () => {
+                    currentMode = mode;
+                    renderModesNav();
+                    renderTiers();
+                };
+                nav.appendChild(btn);
+            });
+        }
+
+        function renderTiers() {
+            const container = document.getElementById("tiersContainer");
+            const searchVal = document.getElementById("searchInput").value.toLowerCase();
+            container.innerHTML = "";
+
+            if (currentMode === "Overall") {
+                renderOverallLeaderboard(container, searchVal);
+            } else if (currentMode === "Recent Tests") {
+                renderTestLogs(container, searchVal);
+            } else {
+                renderGamemodeTiers(container, searchVal);
+            }
+        }
+
+        function loadAvatarIntoImg(imgElement, playerName) {
+            if (customSkins[playerName]) {
+                cropFaceFromSkin(customSkins[playerName], (croppedDataUrl) => {
+                    imgElement.src = croppedDataUrl;
+                });
+            } else {
+                imgElement.src = `https://minotar.net/helm/${playerName}/44.png`;
+                imgElement.onerror = function() {
+                    this.onerror = null;
+                    this.src = defaultAvatar;
+                };
+            }
+        }
+
+        function renderTestLogs(container, searchVal) {
+            const filteredLogs = testLogs.filter(log => 
+                log.testedPlayer.toLowerCase().includes(searchVal) ||
+                log.tester.toLowerCase().includes(searchVal) ||
+                log.mode.toLowerCase().includes(searchVal)
+            );
+
+            const row = document.createElement("div");
+            row.className = "tier-row";
+
+            const header = document.createElement("div");
+            header.className = "tier-header";
+            header.innerHTML = `
+                <span class="tier-title tier-title-HT1">RECENT TIER TESTS</span>
+                <span class="tier-count">${filteredLogs.length} Tests</span>
+            `;
+
+            const grid = document.createElement("div");
+            grid.className = "player-grid";
+
+            filteredLogs.forEach(log => {
+                const card = document.createElement("div");
+                card.className = "test-card";
+
+                let isWon = false;
+                if (log.result) {
+                    isWon = log.result === "won";
+                } else if (log.score) {
+                    const scores = log.score.split("-").map(s => parseInt(s.trim()));
+                    if (scores.length === 2) {
+                        isWon = scores[0] > scores[1];
+                    }
+                }
+
+                const statusClass = isWon ? "won" : "lost";
+                const statusText = isWon ? "WON" : "LOST";
+
+                card.innerHTML = `
+                    <div class="test-header">
+                        <span class="test-gamemode-tag">${log.mode}</span>
+                        <span>${log.date}</span>
+                    </div>
+                    <div class="test-body">
+                        <div class="test-participants">
+                            <div class="player-card-left">
+                                <div class="player-head-wrapper">
+                                    <img class="player-head" alt="${log.testedPlayer}">
+                                </div>
+                                <div class="player-info">
+                                    <span class="role-label">Tested</span>
+                                    <span class="player-name">${log.testedPlayer}</span>
+                                </div>
+                            </div>
+                            <span class="test-vs">VS</span>
+                            <div class="player-card-left">
+                                <div class="player-head-wrapper">
+                                    <img class="player-head" alt="${log.tester}">
+                                </div>
+                                <div class="player-info">
+                                    <span class="role-label">Tester</span>
+                                    <span class="player-name">${log.tester}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="test-details">
+                            <span class="test-score ${statusClass}">${log.score} (${statusText})</span>
+                            <div class="test-progression">
+                                <span class="badge badge-${log.prevTier}">${log.prevTier}</span>
+                                <span class="test-arrow">➜</span>
+                                <span class="badge badge-${log.newTier}">${log.newTier}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+
+                const testedImg = card.querySelectorAll('.player-head')[0];
+                const testerImg = card.querySelectorAll('.player-head')[1];
+                loadAvatarIntoImg(testedImg, log.testedPlayer);
+                loadAvatarIntoImg(testerImg, log.tester);
+            });
+
+            row.appendChild(header);
+            row.appendChild(grid);
+            container.appendChild(row);
+        }
+
+        function renderGamemodeTiers(container, searchVal) {
+            tiersList.forEach(tier => {
+                const playersInTier = playerData.filter(p => 
+                    p.mode === currentMode && 
+                    p.tier === tier && 
+                    p.name.toLowerCase().includes(searchVal)
+                );
+
+                if (playersInTier.length === 0) return;
+
+                const row = document.createElement("div");
+                row.className = "tier-row";
+
+                const header = document.createElement("div");
+                header.className = "tier-header";
+                header.innerHTML = `
+                    <span class="tier-title tier-title-${tier}">${tier}</span>
+                    <span class="tier-count">${playersInTier.length} ${playersInTier.length === 1 ? 'Player' : 'Players'}</span>
+                `;
+
+                const grid = document.createElement("div");
+                grid.className = "player-grid";
+
+                playersInTier.forEach(player => {
+                    const card = createPlayerCard(player.name, player.tier, false);
+                    grid.appendChild(card);
+                });
+
+                row.appendChild(header);
+                row.appendChild(grid);
+                container.appendChild(row);
+            });
+        }
+
+        function renderOverallLeaderboard(container, searchVal) {
+            const pointsMap = {};
+
+            playerData.forEach(p => {
+                const pts = tierPoints[p.tier] || 0;
+                pointsMap[p.name] = (pointsMap[p.name] || 0) + pts;
+            });
+
+            const rankedPlayers = Object.keys(pointsMap)
+                .map(name => ({ name, points: pointsMap[name] }))
+                .sort((a, b) => b.points - a.points)
+                .map((player, index) => ({ ...player, rank: index + 1 }));
+
+            const filteredPlayers = rankedPlayers.filter(p => 
+                p.name.toLowerCase().includes(searchVal)
+            );
+
+            const row = document.createElement("div");
+            row.className = "tier-row";
+
+            const header = document.createElement("div");
+            header.className = "tier-header";
+            header.innerHTML = `
+                <span class="tier-title tier-title-HT1">OVERALL LEADERBOARD</span>
+                <span class="tier-count">${filteredPlayers.length} Ranked</span>
+            `;
+
+            const grid = document.createElement("div");
+            grid.className = "player-grid";
+
+            filteredPlayers.forEach((player) => {
+                const card = createPlayerCard(player.name, `${player.points} PTS`, true, player.rank);
+                grid.appendChild(card);
+            });
+
+            row.appendChild(header);
+            row.appendChild(grid);
+            container.appendChild(row);
+        }
+
+        function createPlayerCard(name, badgeText, isOverall = false, rank = 0) {
+            const card = document.createElement("div");
+            card.className = "player-card";
+
+            let rankHtml = '';
+            if (isOverall) {
+                let rankClass = "rank-cold-silver";
+                let cardClass = "card-cold-silver";
+
+                if (rank === 1) { rankClass = "rank-gold"; cardClass = "card-gold"; }
+                else if (rank === 2) { rankClass = "rank-silver"; cardClass = "card-silver"; }
+                else if (rank === 3) { rankClass = "rank-bronze"; cardClass = "card-bronze"; }
+
+                card.classList.add(cardClass);
+                rankHtml = `<span class="overall-rank ${rankClass}">#${rank}</span>`;
+            }
+
+            const badgeClass = isOverall ? 'badge-points' : `badge-${badgeText}`;
+
+            card.innerHTML = `
+                <div class="player-card-left">
+                    ${rankHtml}
+                    <div class="player-head-wrapper">
+                        <img class="player-head" alt="${name}">
+                    </div>
+                    <div class="player-info">
+                        <span class="player-name">${name}</span>
+                    </div>
+                </div>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+            `;
+
+            const headImg = card.querySelector('.player-head');
+            loadAvatarIntoImg(headImg, name);
+
+            return card;
+        }
+
+        document.getElementById("searchInput").addEventListener("input", renderTiers);
+
+        renderModesNav();
+        renderTiers();
+    </script>
+</body>
+</html>
